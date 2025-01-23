@@ -1,4 +1,6 @@
 
-autopep8~=2.3.2
-Jinja2>=2.10.1
-
+autopep8
+rope
+# Upload on the pypi.org
+wheel
+twine

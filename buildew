@@ -53,6 +53,7 @@ if [ ! -d .venv ]; then
     fi
     .venv/bin/python3 .pip/get-pip.py
     .venv/bin/pip3 install -r requirements.dev.txt
+    .venv/bin/pip3 install -r requirements.txt
 fi
 
 if [ -f '.env' ]; then
@@ -83,16 +84,11 @@ function clean {
 if [ "$COMMAND" == "redeps" ]; then
     echo "Reinstall dependencies"
     .venv/bin/pip3 install -r requirements.dev.txt
+    .venv/bin/pip3 install -r requirements.txt
 fi
 
 if [ "$COMMAND" == "clean" ]; then
     clean
-fi
-
-if [ "$COMMAND" == "tests" ] || [ "$COMMAND" == "test" ]; then
-    echo Run tests
-    .venv/bin/python -m unittests tests
-
 fi
 
 if [ "$COMMAND" == "tests" ] || [ "$COMMAND" == "test" ]; then
@@ -122,8 +118,24 @@ if [ "$COMMAND" == "install" ]; then
     .venv/bin/python setup.py install
 fi
 
+# =========== PUBLISH TO THE PYPI.ORG =============================================================
+if [ "$COMMAND" == "publish" ]; then
+    echo 'Publish to the pypi.org'
+    clean
+    rm -fr build
+    rm -fr dist
+    .venv/bin/python3 setup.py bdist_wheel
+    .venv/bin/python3 setup.py sdist
+    .venv/bin/twine upload dist/*
+fi
+
+if [ "$COMMAND" == "check-publish" ]; then
+    .venv/bin/python3 setup.py check -r -s
+fi
+
+
 # =================================================================================================
 
-AVAILABLE_COMMANDS="tests redeps clean release dist install"
+AVAILABLE_COMMANDS="tests redeps clean release dist install publish check-publish"
 echo ''
 [[ $AVAILABLE_COMMANDS =~ (^| )$COMMAND($| ) ]] && echo 'Ok' || echo 'Unknown command: ' "$COMMAND" && echo 'Available commands are: ' "$AVAILABLE_COMMANDS"
